@@ -26,6 +26,7 @@ Servo myservo;
 
 int flag1=0, flag2=0;
 int available_slots = 8;
+
 void setup(){
   
   Serial.begin(9600);
@@ -100,8 +101,6 @@ void print_on_lcd(int car,int location_x, int location_y,int slot_number) {
   lcd.setCursor (location_x,location_y);
   lcd.print("s");
   lcd.print(slot_number);
-
-  bool isFilled = false;
   
   if(digitalRead(car) == 0){
       lcd.print(": Full");
