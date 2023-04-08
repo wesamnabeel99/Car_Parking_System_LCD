@@ -21,11 +21,9 @@ Servo myservo;
 #define ir_car4 8
 #define ir_car5 9
 #define ir_car6 10
-#define ir_car7 11
-#define ir_car8 12
 
-int flag1=0, flag2=0;
-int available_slots = 8;
+
+int enter_flag=0, back_flag=0;
 
 void setup(){
   
@@ -57,6 +55,13 @@ void setup(){
 }
 
 void loop(){
+
+  int empty_slots =  digitalRead(ir_car1) +  digitalRead(ir_car2) + digitalRead(ir_car3) + digitalRead(ir_car4) + digitalRead(ir_car5) + digitalRead(ir_car6);
+  
+  lcd.setCursor (0,0);
+  lcd.print("   Have Slot: "); 
+  lcd.print(empty_slots);
+  lcd.print("    ");  
   
   print_on_lcd(ir_car1,0,1,1);
   print_on_lcd(ir_car2,10,1,2);
@@ -64,15 +69,13 @@ void loop(){
   print_on_lcd(ir_car4,10,2,4);
   print_on_lcd(ir_car5,0,3,5);
   print_on_lcd(ir_car6,10,3,6);
-  print_on_lcd(ir_car7,0,4,7);
-  print_on_lcd(ir_car8,10,4,8);
+
   
-  if(digitalRead (ir_enter) == 0 && flag1==0){
-    if(available_slots>0){
-      flag1=1;
-      if(flag2==0){
+  if(is_activated(ir_enter) && enter_flag==0){
+    if(empty_slots > 0){
+      enter_flag=1;
+      if(back_flag==0){
         myservo.write(180); 
-        available_slots = available_slots - 1;
         }
   } else{
     lcd.setCursor (0,0);
@@ -81,15 +84,15 @@ void loop(){
     }   
   }
   
-  if(digitalRead (ir_back) == 0 && flag2==0){
-    flag2=1;
-    if(flag1==0){myservo.write(180); available_slots = available_slots +1;}
+  if(is_activated(ir_back)&& back_flag==0){
+    back_flag=1;
+    if(enter_flag == 0){myservo.write(180); }
   }
   
-  if(flag1==1 && flag2==1){
+  if(enter_flag==1 && back_flag==1){
     delay (1000);
     myservo.write(90);
-    flag1=0, flag2=0;
+    enter_flag=0, back_flag=0;
   }
   
   delay(1);
@@ -102,9 +105,13 @@ void print_on_lcd(int car,int location_x, int location_y,int slot_number) {
   lcd.print("s");
   lcd.print(slot_number);
   
-  if(digitalRead(car) == 0){
-      lcd.print(": Full");
+  if(is_activated(car)){
+      lcd.print(": Full ");
     } else {
       lcd.print(": Empty");
     }  
+}
+
+bool is_activated(int pin) {
+  return digitalRead(pin) == 0;
 }
